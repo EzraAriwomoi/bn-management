@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import "@/components/css/bookings_calendar.css";
 
 export function BookingsCalendar({ bookings }) {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
@@ -15,12 +16,12 @@ export function BookingsCalendar({ bookings }) {
   const firstDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
-    1
+    1,
   );
   const lastDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
-    0
+    0,
   );
 
   const daysInMonth = lastDay.getDate();
@@ -28,22 +29,18 @@ export function BookingsCalendar({ bookings }) {
 
   const calendarDays = useMemo(() => {
     const days = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(i);
-    }
+    for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(i);
     return days;
   }, [startingDayOfWeek, daysInMonth]);
 
   const getBookingsForDate = (day) => {
+    if (!day) return [];
     const date = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
     );
-
     return bookings.filter((booking) => {
       const checkIn = new Date(booking.check_in);
       const checkOut = new Date(booking.check_out);
@@ -51,85 +48,68 @@ export function BookingsCalendar({ bookings }) {
     });
   };
 
-  const previousMonth = () => {
+  const previousMonth = () =>
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
     );
-  };
 
-  const nextMonth = () => {
+  const nextMonth = () =>
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
     );
-  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-6">
-        <Button variant="outline" size="sm" onClick={previousMonth}>
-          <ChevronLeft className="w-4 h-4" />
+    <div className="bookings-calendar">
+      <div className="calendar-header">
+        <Button onClick={previousMonth} size="sm" variant="outline">
+          <ChevronLeft />
         </Button>
-
-        <h3 className="text-lg font-semibold">{monthName}</h3>
-
-        <Button variant="outline" size="sm" onClick={nextMonth}>
-          <ChevronRight className="w-4 h-4" />
+        <h3>{monthName}</h3>
+        <Button onClick={nextMonth} size="sm" variant="outline">
+          <ChevronRight />
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="calendar-grid">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div
-            key={day}
-            className="text-center font-semibold text-sm text-muted-foreground p-2"
-          >
+          <div key={day} className="calendar-weekday">
             {day}
           </div>
         ))}
 
         {calendarDays.map((day, index) => {
-          const dayBookings = day ? getBookingsForDate(day) : [];
-          const hasPaid = dayBookings.some(
-            (b) => b.payment_status === "Paid"
-          );
+          const dayBookings = getBookingsForDate(day);
+          const hasPaid = dayBookings.some((b) => b.payment_status === "Paid");
           const hasUnpaid = dayBookings.some(
-            (b) => b.payment_status === "Unpaid"
+            (b) => b.payment_status === "Unpaid",
           );
+
+          let dayClass = "calendar-day";
+          if (!day) dayClass += " calendar-day-disabled";
+          else if (hasPaid && !hasUnpaid) dayClass += " calendar-day-paid";
+          else if (hasUnpaid) dayClass += " calendar-day-unpaid";
 
           return (
-            <div
-              key={index}
-              className={`min-h-24 p-2 rounded-lg border text-sm ${
-                day
-                  ? "bg-card border-border hover:bg-muted/50 cursor-pointer"
-                  : "bg-muted/30 border-transparent"
-              } ${
-                hasPaid && !hasUnpaid
-                  ? "bg-green-50 dark:bg-green-950"
-                  : ""
-              } ${hasUnpaid ? "bg-red-50 dark:bg-red-950" : ""}`}
-            >
+            <div key={index} className={dayClass}>
               {day && (
                 <>
-                  <div className="font-semibold mb-1">{day}</div>
-
-                  <div className="space-y-1">
+                  <div className="day-number">{day}</div>
+                  <div className="bookings-list">
                     {dayBookings.slice(0, 2).map((booking) => (
                       <div
                         key={booking.id}
-                        className={`text-xs p-1 rounded truncate ${
+                        className={
                           booking.payment_status === "Paid"
-                            ? "bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-100"
-                            : "bg-red-100 text-red-900 dark:bg-red-900 dark:text-red-100"
-                        }`}
+                            ? "booking-label booking-paid"
+                            : "booking-label booking-unpaid"
+                        }
                         title={booking.guest_name}
                       >
                         {booking.guest_name.split(" ")[0]}
                       </div>
                     ))}
-
                     {dayBookings.length > 2 && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="more-bookings">
                         +{dayBookings.length - 2} more
                       </div>
                     )}
@@ -141,14 +121,13 @@ export function BookingsCalendar({ bookings }) {
         })}
       </div>
 
-      <div className="flex gap-4 mt-6 text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-100 dark:bg-green-900 rounded border border-green-300" />
+      <div className="calendar-legend">
+        <div className="legend-item">
+          <div className="legend-color legend-paid"></div>
           <span>Paid</span>
         </div>
-
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-100 dark:bg-red-900 rounded border border-red-300" />
+        <div className="legend-item">
+          <div className="legend-color legend-unpaid"></div>
           <span>Unpaid</span>
         </div>
       </div>

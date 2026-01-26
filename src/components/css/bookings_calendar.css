@@ -1,0 +1,145 @@
+.bookings-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #888;
+  padding: 0.5rem 0;
+}
+
+.calendar-day {
+  min-height: 6rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+  background-color: #f3f4f6;
+}
+
+.calendar-day-disabled {
+  background-color: #f9fafb;
+  border-color: transparent;
+  cursor: default;
+}
+
+.calendar-day-paid {
+  background-color: #ecfdf5;
+}
+
+.calendar-day-unpaid {
+  background-color: #fef2f2;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.booking-label {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.booking-label.booking-paid {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.booking-label.booking-unpaid {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.more-bookings {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+}
+
+.legend-paid {
+  background-color: #d1fae5;
+  border-color: #86efac;
+}
+
+.legend-unpaid {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+}
+
+@media (max-width: 640px) {
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(2rem, 1fr));
+    gap: 0.25rem;
+  }
+
+  .calendar-day {
+    min-height: 4.5rem;
+    padding: 0.25rem;
+  }
+
+  .calendar-header h3 {
+    font-size: 1rem;
+  }
+}

@@ -3,6 +3,7 @@
  * @property {number} id
  * @property {string} booking_id
  * @property {number} property_id
+ * @property {string} house
  * @property {string} guest_name
  * @property {string} platform
  * @property {string=} agent_name
@@ -22,6 +23,7 @@
  * @typedef {Object} CreateBookingPayload
  * @property {string} booking_id
  * @property {number} property_id
+ * @property {string} house
  * @property {string} guest_name
  * @property {string} platform
  * @property {string=} agent_name

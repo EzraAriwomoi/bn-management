@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import "@/components/css/booking_form.css";
 
 export function BookingForm({ initialData, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ export function BookingForm({ initialData, onSuccess }) {
     platform: initialData?.platform || "Airbnb",
     agent_name: initialData?.agent_name || "",
     agent_contact: initialData?.agent_contact || "",
+    house: initialData?.house || "",
     check_in: initialData?.check_in || "",
     check_out: initialData?.check_out || "",
     amount: initialData?.amount?.toString() || "",
@@ -29,13 +31,23 @@ export function BookingForm({ initialData, onSuccess }) {
     notes: initialData?.notes || "",
   });
 
+  const ROOMS = [
+    { value: "B1-3", label: "B1-3" },
+    { value: "B2-8", label: "B2-8" },
+    { value: "B3-10", label: "B3-10" },
+    { value: "B7-7", label: "B7-7" },
+    { value: "A4", label: "A4" },
+    { value: "A5", label: "A5" },
+    { value: "G3", label: "G3" },
+    { value: "1B", label: "1B" },
+  ];
+
   const calculateNights = () => {
     if (formData.check_in && formData.check_out) {
       const checkIn = new Date(formData.check_in);
       const checkOut = new Date(formData.check_out);
       const nights = Math.ceil(
-        (checkOut.getTime() - checkIn.getTime()) /
-          (1000 * 60 * 60 * 24)
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
       );
       return nights > 0 ? nights : 0;
     }
@@ -45,7 +57,6 @@ export function BookingForm({ initialData, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const nights = calculateNights();
       const payload = {
@@ -54,21 +65,15 @@ export function BookingForm({ initialData, onSuccess }) {
         amount: parseFloat(formData.amount),
         property_id: 1,
       };
-
-      console.log("Booking data to be saved:", payload);
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
+      console.log("Booking data:", payload);
+      await new Promise((res) => setTimeout(res, 500));
       alert(
-        `Booking ${
-          initialData ? "updated" : "created"
-        } successfully!\n\nNote: Frontend-only demo.`
+        `Booking ${initialData ? "updated" : "created"} successfully! (Frontend demo)`,
       );
-
       onSuccess();
       setLoading(false);
-    } catch (error) {
-      console.error("Error saving booking:", error);
+    } catch (err) {
+      console.error(err);
       alert("Failed to save booking");
       setLoading(false);
     }
@@ -77,9 +82,9 @@ export function BookingForm({ initialData, onSuccess }) {
   const nights = calculateNights();
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+    <form className="booking-form" onSubmit={handleSubmit}>
+      <div className="grid-2-cols">
+        <div className="form-group">
           <Label htmlFor="booking_id">Booking ID *</Label>
           <Input
             id="booking_id"
@@ -93,7 +98,7 @@ export function BookingForm({ initialData, onSuccess }) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="guest_name">Guest Name *</Label>
           <Input
             id="guest_name"
@@ -106,7 +111,29 @@ export function BookingForm({ initialData, onSuccess }) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
+          <Label htmlFor="house">Booked House *</Label>
+          <Select
+            value={formData.house}
+            onValueChange={(value) =>
+              setFormData({ ...formData, house: value })
+            }
+            required
+          >
+            <SelectTrigger id="house">
+              <SelectValue placeholder="Select house" />
+            </SelectTrigger>
+            <SelectContent>
+              {ROOMS.map((room) => (
+                <SelectItem key={room.value} value={room.value}>
+                  {room.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="form-group">
           <Label htmlFor="platform">Platform *</Label>
           <Select
             value={formData.platform}
@@ -129,7 +156,7 @@ export function BookingForm({ initialData, onSuccess }) {
 
         {formData.platform === "Agent" && (
           <>
-            <div className="space-y-2">
+            <div className="form-group">
               <Label htmlFor="agent_name">Agent Name</Label>
               <Input
                 id="agent_name"
@@ -137,28 +164,25 @@ export function BookingForm({ initialData, onSuccess }) {
                 onChange={(e) =>
                   setFormData({ ...formData, agent_name: e.target.value })
                 }
-                placeholder="Agent name"
+                placeholder="Agent Name"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="form-group">
               <Label htmlFor="agent_contact">Agent Contact</Label>
               <Input
                 id="agent_contact"
                 value={formData.agent_contact}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    agent_contact: e.target.value,
-                  })
+                  setFormData({ ...formData, agent_contact: e.target.value })
                 }
-                placeholder="Phone/Email"
+                placeholder="Phone / Email"
               />
             </div>
           </>
         )}
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="check_in">Check-In *</Label>
           <Input
             id="check_in"
@@ -171,7 +195,7 @@ export function BookingForm({ initialData, onSuccess }) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="check_out">Check-Out *</Label>
           <Input
             id="check_out"
@@ -184,12 +208,12 @@ export function BookingForm({ initialData, onSuccess }) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label>Nights (Auto)</Label>
-          <Input value={nights} disabled className="bg-muted" />
+          <Input value={nights} disabled className="disabled-input" />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="amount">Amount *</Label>
           <Input
             id="amount"
@@ -203,7 +227,7 @@ export function BookingForm({ initialData, onSuccess }) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="payment_status">Payment Status *</Label>
           <Select
             value={formData.payment_status}
@@ -222,7 +246,7 @@ export function BookingForm({ initialData, onSuccess }) {
           </Select>
         </div>
 
-        <div className="space-y-2">
+        <div className="form-group">
           <Label htmlFor="stay_status">Stay Status *</Label>
           <Select
             value={formData.stay_status}
@@ -243,28 +267,26 @@ export function BookingForm({ initialData, onSuccess }) {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="form-group">
         <Label htmlFor="notes">Notes</Label>
         <Textarea
           id="notes"
           value={formData.notes}
-          onChange={(e) =>
-            setFormData({ ...formData, notes: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           rows={4}
         />
       </div>
 
-      <div className="flex gap-3 justify-end">
-        <Button type="button" variant="outline" onClick={onSuccess}>
+      <div className="form-actions">
+        <Button type="button" className="outline-button" onClick={onSuccess}>
           Cancel
         </Button>
         <Button type="submit" disabled={loading}>
           {loading
             ? "Saving..."
             : initialData
-            ? "Update Booking"
-            : "Add Booking"}
+              ? "Update Booking"
+              : "Add Booking"}
         </Button>
       </div>
     </form>

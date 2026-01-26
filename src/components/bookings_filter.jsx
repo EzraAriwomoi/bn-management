@@ -1,98 +1,102 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import "@/components/css/bookings_filter.css";
 
-// BookingsFilter props: bookings = array of booking objects, onFilterChange = callback
+const ROOMS = [
+  { value: "B1-3", label: "B1-3 (Studio)" },
+  { value: "B2-8", label: "B2-8 (Studio)" },
+  { value: "B3-10", label: "B3-10 (Studio)" },
+  { value: "B7-7", label: "B7-7 (Studio)" },
+  { value: "A4", label: "A4 (1 Bedroom)" },
+  { value: "A5", label: "A5 (1 Bedroom)" },
+  { value: "G3", label: "G3 (1 Bedroom)" },
+  { value: "1B", label: "1B (1 Bedroom)" },
+];
+
 export function BookingsFilter({ bookings, onFilterChange }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [stayStatusFilter, setStayStatusFilter] = useState("all");
+  const [houseFilter, setHouseFilter] = useState("all");
 
   const filterBookings = () => {
     let filtered = bookings;
 
-    // Search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (booking) =>
           booking.guest_name.toLowerCase().includes(term) ||
           booking.booking_id.toLowerCase().includes(term) ||
-          (booking.agent_name?.toLowerCase().includes(term) ?? false)
+          (booking.agent_name?.toLowerCase().includes(term) ?? false),
       );
     }
 
-    // Platform filter
-    if (platformFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.platform === platformFilter);
-    }
-
-    // Payment filter
-    if (paymentFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.payment_status === paymentFilter);
-    }
-
-    // Stay status filter
-    if (stayStatusFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.stay_status === stayStatusFilter);
-    }
+    if (platformFilter !== "all")
+      filtered = filtered.filter((b) => b.platform === platformFilter);
+    if (paymentFilter !== "all")
+      filtered = filtered.filter((b) => b.payment_status === paymentFilter);
+    if (stayStatusFilter !== "all")
+      filtered = filtered.filter((b) => b.stay_status === stayStatusFilter);
+    if (houseFilter !== "all")
+      filtered = filtered.filter((b) => b.house === houseFilter);
 
     onFilterChange(filtered);
   };
 
-  const handleSearch = () => {
+  useEffect(() => {
     filterBookings();
-  };
+  }, [
+    searchTerm,
+    platformFilter,
+    paymentFilter,
+    stayStatusFilter,
+    houseFilter,
+  ]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
     setPlatformFilter("all");
     setPaymentFilter("all");
     setStayStatusFilter("all");
+    setHouseFilter("all");
     onFilterChange(bookings);
   };
 
   const isFiltered =
-    searchTerm !== "" || platformFilter !== "all" || paymentFilter !== "all" || stayStatusFilter !== "all";
+    searchTerm !== "" ||
+    platformFilter !== "all" ||
+    paymentFilter !== "all" ||
+    stayStatusFilter !== "all" ||
+    houseFilter !== "all";
 
   return (
-    <div className="space-y-3 sm:space-y-4 bg-muted/30 p-3 sm:p-4 md:p-6 rounded-lg border border-border">
-      {/* Search Input */}
-      <div>
-        <label className="text-xs sm:text-sm font-medium text-foreground mb-2 block">Search</label>
-        <div className="flex flex-col sm:flex-row gap-2">
+    <div className="bookings-filter">
+      {/* Search */}
+      <div className="filter-search">
+        <label>Search</label>
+        <div className="search-inputs">
           <Input
             placeholder="Search by guest, booking ID, or agent..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              if (e.target.value === "") filterBookings();
-            }}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="flex-1 text-sm"
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-field"
           />
-          <Button onClick={handleSearch} className="px-4 sm:px-6 w-full sm:w-auto">
-            Search
-          </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Platform Filter */}
-        <div>
-          <label className="text-xs sm:text-sm font-medium text-foreground mb-2 block">Platform</label>
+      <div className="filter-grid">
+        <div className="filter-item">
+          <label>Platform</label>
           <select
             value={platformFilter}
-            onChange={(e) => {
-              setPlatformFilter(e.target.value);
-              filterBookings();
-            }}
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
+            onChange={(e) => setPlatformFilter(e.target.value)}
           >
             <option value="all">All Platforms</option>
             <option value="Airbnb">Airbnb</option>
@@ -102,16 +106,26 @@ export function BookingsFilter({ bookings, onFilterChange }) {
           </select>
         </div>
 
-        {/* Payment Filter */}
-        <div>
-          <label className="text-xs sm:text-sm font-medium text-foreground mb-2 block">Payment Status</label>
+        <div className="filter-item">
+          <label>House</label>
+          <select
+            value={houseFilter}
+            onChange={(e) => setHouseFilter(e.target.value)}
+          >
+            <option value="all">All Houses</option>
+            {ROOMS.map((room) => (
+              <option key={room.value} value={room.value}>
+                {room.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-item">
+          <label>Payment Status</label>
           <select
             value={paymentFilter}
-            onChange={(e) => {
-              setPaymentFilter(e.target.value);
-              filterBookings();
-            }}
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
+            onChange={(e) => setPaymentFilter(e.target.value)}
           >
             <option value="all">All Status</option>
             <option value="Paid">Paid</option>
@@ -120,16 +134,11 @@ export function BookingsFilter({ bookings, onFilterChange }) {
           </select>
         </div>
 
-        {/* Stay Status Filter */}
-        <div>
-          <label className="text-xs sm:text-sm font-medium text-foreground mb-2 block">Stay Status</label>
+        <div className="filter-item">
+          <label>Stay Status</label>
           <select
             value={stayStatusFilter}
-            onChange={(e) => {
-              setStayStatusFilter(e.target.value);
-              filterBookings();
-            }}
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
+            onChange={(e) => setStayStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
             <option value="Upcoming">Upcoming</option>
@@ -140,16 +149,11 @@ export function BookingsFilter({ bookings, onFilterChange }) {
         </div>
       </div>
 
-      {/* Clear Filters Button */}
+      {/* Clear Filters */}
       {isFiltered && (
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClearFilters}
-            className="flex items-center gap-2 bg-transparent text-xs sm:text-sm"
-          >
-            <X className="w-3 h-3 sm:w-4 sm:h-4" />
+        <div className="clear-filters">
+          <Button onClick={handleClearFilters} className="clear-button">
+            <X className="clear-icon" />
             Clear Filters
           </Button>
         </div>

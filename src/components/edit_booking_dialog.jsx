@@ -3,21 +3,17 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { BookingForm } from "./booking_form";
+import { BookingForm } from "@/components/booking_form";
+import "@/components/css/edit_booking_dialog.css";
 
-export function EditBookingDialog({
-  booking,
-  open,
-  onOpenChange,
-  onSuccess,
-}) {
+export function EditBookingDialog({ booking, open, onOpenChange, onSuccess }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="edit-dialog-content">
         <DialogHeader>
           <DialogTitle>Edit Booking</DialogTitle>
           <DialogDescription>
