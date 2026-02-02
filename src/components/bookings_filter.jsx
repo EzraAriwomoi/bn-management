@@ -6,17 +6,6 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import "@/components/css/bookings_filter.css";
 
-const ROOMS = [
-  { value: "B1-3", label: "B1-3 (Studio)" },
-  { value: "B2-8", label: "B2-8 (Studio)" },
-  { value: "B3-10", label: "B3-10 (Studio)" },
-  { value: "B7-7", label: "B7-7 (Studio)" },
-  { value: "A4", label: "A4 (1 Bedroom)" },
-  { value: "A5", label: "A5 (1 Bedroom)" },
-  { value: "G3", label: "G3 (1 Bedroom)" },
-  { value: "1B", label: "1B (1 Bedroom)" },
-];
-
 export function BookingsFilter({ bookings, onFilterChange }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
@@ -24,6 +13,37 @@ export function BookingsFilter({ bookings, onFilterChange }) {
   const [stayStatusFilter, setStayStatusFilter] = useState("all");
   const [houseFilter, setHouseFilter] = useState("all");
 
+  const [rooms, setRooms] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
+
+  /* -------------------- FETCH FILTER OPTIONS -------------------- */
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/rooms/");
+        if (!res.ok) throw new Error("Failed to fetch rooms");
+        const data = await res.json();
+        setRooms(data.map((r) => ({ value: r.name, label: r.name })));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const fetchPlatforms = async () => {
+      try {
+        // You could have a dedicated endpoint or infer platforms from bookings
+        const uniquePlatforms = [...new Set(bookings.map((b) => b.platform))];
+        setPlatforms(uniquePlatforms);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRooms();
+    fetchPlatforms();
+  }, [bookings]);
+
+  /* -------------------- FILTER LOGIC -------------------- */
   const filterBookings = () => {
     let filtered = bookings;
 
@@ -33,16 +53,19 @@ export function BookingsFilter({ bookings, onFilterChange }) {
         (booking) =>
           booking.guest_name.toLowerCase().includes(term) ||
           booking.booking_id.toLowerCase().includes(term) ||
-          (booking.agent_name?.toLowerCase().includes(term) ?? false),
+          (booking.agent_name?.toLowerCase().includes(term) ?? false)
       );
     }
 
     if (platformFilter !== "all")
       filtered = filtered.filter((b) => b.platform === platformFilter);
+
     if (paymentFilter !== "all")
       filtered = filtered.filter((b) => b.payment_status === paymentFilter);
+
     if (stayStatusFilter !== "all")
       filtered = filtered.filter((b) => b.stay_status === stayStatusFilter);
+
     if (houseFilter !== "all")
       filtered = filtered.filter((b) => b.house === houseFilter);
 
@@ -51,13 +74,7 @@ export function BookingsFilter({ bookings, onFilterChange }) {
 
   useEffect(() => {
     filterBookings();
-  }, [
-    searchTerm,
-    platformFilter,
-    paymentFilter,
-    stayStatusFilter,
-    houseFilter,
-  ]);
+  }, [searchTerm, platformFilter, paymentFilter, stayStatusFilter, houseFilter]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -75,6 +92,7 @@ export function BookingsFilter({ bookings, onFilterChange }) {
     stayStatusFilter !== "all" ||
     houseFilter !== "all";
 
+  /* -------------------- JSX -------------------- */
   return (
     <div className="bookings-filter">
       {/* Search */}
@@ -92,6 +110,7 @@ export function BookingsFilter({ bookings, onFilterChange }) {
 
       {/* Filters */}
       <div className="filter-grid">
+        {/* Platform Filter */}
         <div className="filter-item">
           <label>Platform</label>
           <select
@@ -99,13 +118,15 @@ export function BookingsFilter({ bookings, onFilterChange }) {
             onChange={(e) => setPlatformFilter(e.target.value)}
           >
             <option value="all">All Platforms</option>
-            <option value="Airbnb">Airbnb</option>
-            <option value="Booking.com">Booking.com</option>
-            <option value="Agent">Agent</option>
-            <option value="Direct">Direct</option>
+            {platforms.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* House Filter */}
         <div className="filter-item">
           <label>House</label>
           <select
@@ -113,7 +134,7 @@ export function BookingsFilter({ bookings, onFilterChange }) {
             onChange={(e) => setHouseFilter(e.target.value)}
           >
             <option value="all">All Houses</option>
-            {ROOMS.map((room) => (
+            {rooms.map((room) => (
               <option key={room.value} value={room.value}>
                 {room.label}
               </option>
@@ -121,6 +142,7 @@ export function BookingsFilter({ bookings, onFilterChange }) {
           </select>
         </div>
 
+        {/* Payment Status Filter */}
         <div className="filter-item">
           <label>Payment Status</label>
           <select
@@ -130,10 +152,10 @@ export function BookingsFilter({ bookings, onFilterChange }) {
             <option value="all">All Status</option>
             <option value="Paid">Paid</option>
             <option value="Unpaid">Unpaid</option>
-            <option value="Pending">Pending</option>
           </select>
         </div>
 
+        {/* Stay Status Filter */}
         <div className="filter-item">
           <label>Stay Status</label>
           <select

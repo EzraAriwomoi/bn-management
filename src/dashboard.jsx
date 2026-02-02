@@ -1,18 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardHeader } from "./components/dashboard_header";
 import { BookingsCalendar } from "./components/bookings_calendar";
 import { BookingsTable } from "./components/bookings_table";
 import { BookingsFilter } from "./components/bookings_filter";
-import { AddBookingDialog } from "./components/add_booking_dialog";
 import { RoomAnalytics } from "./components/room_analytics";
-import { mockBookings } from "../src/lib/mock_bookings";
 
 import "@/components/css/dashboard.css";
 
+const API_BASE = "http://127.0.0.1:8000/api";
+
 export function DashboardClient() {
-  const [filteredBookings, setFilteredBookings] = useState(mockBookings);
+  const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/bookings/`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch bookings");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        // Sort by most recent check-in date
+        const sorted = data.sort(
+          (a, b) => new Date(b.check_in) - new Date(a.check_in),
+        );
+
+        setBookings(sorted);
+        setFilteredBookings(sorted);
+      })
+      .catch((err) => {
+        console.error("Error loading bookings:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="dashboard">
@@ -26,22 +53,36 @@ export function DashboardClient() {
         <div className="dashboard-section card">
           <div className="section-header">
             <h2>Booking Calendar</h2>
-            <AddBookingDialog />
           </div>
-          <BookingsCalendar bookings={mockBookings} />
+
+          {loading ? (
+            <p>Loading bookings...</p>
+          ) : (
+            <BookingsCalendar bookings={bookings} />
+          )}
         </div>
 
         <div className="dashboard-section card">
           <h2>Filters</h2>
-          <BookingsFilter
-            bookings={mockBookings}
-            onFilterChange={setFilteredBookings}
-          />
+
+          {loading ? (
+            <p>Loading filters...</p>
+          ) : (
+            <BookingsFilter
+              bookings={bookings}
+              onFilterChange={setFilteredBookings}
+            />
+          )}
         </div>
 
         <div className="dashboard-section card">
           <h2>All Bookings ({filteredBookings.length})</h2>
-          <BookingsTable bookings={filteredBookings} />
+
+          {loading ? (
+            <p>Loading bookings...</p>
+          ) : (
+            <BookingsTable bookings={filteredBookings} />
+          )}
         </div>
       </main>
     </div>

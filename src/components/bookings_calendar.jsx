@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import "@/components/css/bookings_calendar.css";
 
 export function BookingsCalendar({ bookings }) {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
+  // Start calendar at current month instead of hardcoded Jan
+  const [currentDate, setCurrentDate] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
 
   const monthName = currentDate.toLocaleDateString("en-US", {
     month: "long",
@@ -16,12 +22,13 @@ export function BookingsCalendar({ bookings }) {
   const firstDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
-    1,
+    1
   );
+
   const lastDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
-    0,
+    0
   );
 
   const daysInMonth = lastDay.getDate();
@@ -34,28 +41,40 @@ export function BookingsCalendar({ bookings }) {
     return days;
   }, [startingDayOfWeek, daysInMonth]);
 
+  const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
   const getBookingsForDate = (day) => {
     if (!day) return [];
+
     const date = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day,
+      day
     );
+    date.setHours(0, 0, 0, 0);
+
     return bookings.filter((booking) => {
-      const checkIn = new Date(booking.check_in);
-      const checkOut = new Date(booking.check_out);
+      const checkIn = normalizeDate(booking.check_in);
+      const checkOut = normalizeDate(booking.check_out);
+
+      // Guest occupies the room for nights:
+      // check-in INCLUDED, check-out EXCLUDED
       return date >= checkIn && date < checkOut;
     });
   };
 
   const previousMonth = () =>
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
 
   const nextMonth = () =>
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     );
 
   return (
@@ -79,9 +98,12 @@ export function BookingsCalendar({ bookings }) {
 
         {calendarDays.map((day, index) => {
           const dayBookings = getBookingsForDate(day);
-          const hasPaid = dayBookings.some((b) => b.payment_status === "Paid");
+
+          const hasPaid = dayBookings.some(
+            (b) => b.payment_status === "Paid"
+          );
           const hasUnpaid = dayBookings.some(
-            (b) => b.payment_status === "Unpaid",
+            (b) => b.payment_status === "Unpaid"
           );
 
           let dayClass = "calendar-day";
