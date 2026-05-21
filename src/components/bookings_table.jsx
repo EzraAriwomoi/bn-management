@@ -1,148 +1,152 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import "@/components/css/bookings_table.css";
+import "@/components/css/booking_details.css";
+import { BookingDetailsModal } from "./booking_details";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+export function BookingsTable({ bookings = [] }) {
+  const [expandedNotes, setExpandedNotes] = useState({});
+  const [selectedBooking, setSelectedBooking] = useState(null); // for modal
 
-export function BookingsTable() {
-  const [bookingsList, setBookingsList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const toggleNotes = (id, e) => {
+    e.stopPropagation(); // Prevent row click when toggling notes
+    setExpandedNotes((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
-  /* ---------------- FETCH BOOKINGS ---------------- */
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${API_BASE}/bookings/`);
-        const data = await res.json();
+  const openModal = (booking) => setSelectedBooking(booking);
+  const closeModal = () => setSelectedBooking(null);
 
-        // Sort by most recent (created_at → check_in fallback)
-        const sorted = data.sort((a, b) => {
-          const dateA = new Date(a.created_at || a.check_in);
-          const dateB = new Date(b.created_at || b.check_in);
-          return dateB - dateA;
-        });
+  const toNumber = (value) => Number(value ?? 0);
+  const formatKES = (value) => `KES ${toNumber(value).toLocaleString()}`;
+  const formatDate = (date) =>
+    date ? new Date(date).toLocaleDateString() : "-";
 
-        setBookingsList(sorted);
-      } catch (err) {
-        console.error("Failed to fetch bookings", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
-  }, []);
-
-  /* ---------------- BADGES ---------------- */
-  const getPaymentColor = (status) => {
-    switch (status) {
-      case "Paid":
-        return "badge-paid";
-      case "Unpaid":
-        return "badge-unpaid";
-      default:
-        return "badge-default";
-    }
+  const getPaymentState = (booking) => {
+    const balance = toNumber(booking.balance);
+    const paid = toNumber(booking.amount_paid);
+    if (balance <= 0) return { label: "Paid", className: "badge-paid" };
+    if (paid > 0) return { label: "Partial", className: "badge-partial" };
+    return { label: "Unpaid", className: "badge-unpaid" };
   };
 
   const getStayColor = (status) => {
     switch (status) {
-      case "Upcoming":
-        return "badge-upcoming";
-      case "Ongoing":
-        return "badge-ongoing";
-      case "Completed":
-        return "badge-completed";
-      case "Cancelled":
-        return "badge-cancelled";
-      default:
-        return "badge-default";
+      case "Upcoming": return "badge-upcoming";
+      case "Ongoing": return "badge-ongoing";
+      case "Completed": return "badge-completed";
+      case "Cancelled": return "badge-cancelled";
+      default: return "badge-default";
     }
   };
 
-  /* ---------------- UI ---------------- */
-  if (loading) {
-    return <div className="loading">Loading bookings…</div>;
-  }
+  const NOTE_LIMIT = 60;
+  const renderNotes = (booking, e) => {
+    const notes = booking.notes || "-";
+    const isExpanded = expandedNotes[booking.id];
+    if (notes.length <= NOTE_LIMIT) return notes;
+
+    return (
+      <>
+        <span className={isExpanded ? "" : "collapsed"}>
+          {isExpanded ? notes : notes.slice(0, NOTE_LIMIT)}
+        </span>
+        <button
+          className="notes-toggle"
+          onClick={(ev) => toggleNotes(booking.id, ev)}
+        >
+          {isExpanded ? " Show less" : "... Read more"}
+        </button>
+      </>
+    );
+  };
 
   return (
-    <div className="table-container">
-      <table className="bookings-table">
-        <thead>
-          <tr className="table-header">
-            <th>Booking ID</th>
-            <th>Guest</th>
-            <th>House</th>
-            <th>Platform</th>
-            <th>Check-In</th>
-            <th>Check-Out</th>
-            <th>Nights</th>
-            <th className="text-right">Amount</th>
-            <th>Payment</th>
-            <th>Stay Status</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {bookingsList.length === 0 ? (
-            <tr>
-              <td colSpan={11} className="no-bookings">
-                No bookings found.
-              </td>
+    <>
+      {/* Bookings Table */}
+      <div className="table-container">
+        <table className="bookings-table">
+          <thead>
+            <tr className="table-header">
+              <th>Booking ID</th>
+              <th>Guest</th>
+              <th>House</th>
+              <th>Platform</th>
+              <th>Check-In</th>
+              <th>Check-Out</th>
+              <th>Nights</th>
+              <th className="text-right">Amount</th>
+              <th className="text-right">Paid</th>
+              <th className="text-right">Balance</th>
+              <th>Payment</th>
+              <th>Stay Status</th>
+              <th>Notes</th>
             </tr>
-          ) : (
-            bookingsList.map((booking) => (
-              <tr key={booking.id} className="table-row">
-                <td>{booking.booking_id}</td>
+          </thead>
 
-                <td>
-                  <div className="guest-info">
-                    <div className="guest-name">{booking.guest_name}</div>
-                    {booking.agent_name && (
-                      <div className="agent-name">
-                        Agent: {booking.agent_name}
-                      </div>
-                    )}
-                  </div>
+          <tbody>
+            {bookings.length === 0 ? (
+              <tr>
+                <td colSpan={13} className="no-bookings">
+                  No bookings found.
                 </td>
-
-                <td>{booking.house}</td>
-                <td>{booking.platform}</td>
-                <td>{new Date(booking.check_in).toLocaleDateString()}</td>
-                <td>{new Date(booking.check_out).toLocaleDateString()}</td>
-                <td className="text-center">{booking.nights}</td>
-
-                <td className="text-right font-semibold">
-                  KES {Number(booking.amount).toLocaleString()}
-                </td>
-
-                <td>
-                  <span
-                    className={`badge ${getPaymentColor(
-                      booking.payment_status
-                    )}`}
-                  >
-                    {booking.payment_status}
-                  </span>
-                </td>
-
-                <td>
-                  <span
-                    className={`badge ${getStayColor(booking.stay_status)}`}
-                  >
-                    {booking.stay_status}
-                  </span>
-                </td>
-
-                <td className="notes">{booking.notes || "-"}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              bookings.map((booking) => {
+                const balance = toNumber(booking.balance);
+                const payment = getPaymentState(booking);
+
+                return (
+                  <tr
+                    key={booking.id}
+                    className="table-row"
+                    onClick={() => openModal(booking)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <td>{booking.booking_id}</td>
+
+                    {/* Guest + Agent */}
+                    <td>
+                      <div className="guest-info">
+                        <div className="guest-name">{booking.guest_name}</div>
+                        {booking.agent_name && (
+                          <div className="agent-name">
+                            Agent: {booking.agent_name}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    <td>{booking.house}</td>
+                    <td>{booking.platform}</td>
+                    <td>{formatDate(booking.check_in)}</td>
+                    <td>{formatDate(booking.check_out)}</td>
+                    <td className="text-center">{booking.nights ?? 0}</td>
+                    <td className="text-right font-semibold">{formatKES(booking.amount)}</td>
+                    <td className="text-right text-green-600 font-medium">{formatKES(booking.amount_paid)}</td>
+                    <td className={`text-right font-semibold ${balance > 0 ? "text-red-600" : "text-gray-400"}`}>
+                      {formatKES(balance)}
+                    </td>
+                    <td><span className={`badge ${payment.className}`}>{payment.label}</span></td>
+                    <td><span className={`badge ${getStayColor(booking.stay_status)}`}>{booking.stay_status}</span></td>
+
+                    <td className="notes">{renderNotes(booking)}</td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <BookingDetailsModal
+  booking={selectedBooking}
+  onClose={closeModal}
+/>
+    </>
   );
 }

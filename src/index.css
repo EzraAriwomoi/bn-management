@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================= */
+/* Global Reset & Root Styles */
+/* ============================= */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -12,43 +15,142 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --radius: 0.5rem;
+}
+
+/* ============================= */
+/* Base Elements */
+/* ============================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  width: 100%;
+  min-height: 100vh;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* ============================= */
+/* Typography */
+/* ============================= */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.6;
 }
 
 a {
   font-weight: 500;
   color: hsl(var(--primary));
   text-decoration: inherit;
-  transition: color 0.2s;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  word-break: break-word;
 }
+
 a:hover {
   opacity: 0.85;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  font-size: 16px;
+/* ============================= */
+/* Responsive Typography */
+/* ============================= */
+@media (min-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
 }
 
-h1 {
-  font-size: 2.5rem;
-  line-height: 1.1;
-}
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   h1 {
     font-size: 3rem;
   }
-}
-@media (min-width: 1024px) {
-  h1 {
-    font-size: 3.2rem;
+
+  h2 {
+    font-size: 2rem;
   }
 }
 
+/* Small Phones */
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================= */
+/* Theme Variables */
+/* ============================= */
 @layer base {
   :root {
-    /* Light mode */
+    /* Light Mode */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -83,13 +185,9 @@ h1 {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-
-    --radius: 0.5rem;
   }
 
-  /* ============================= */
-  /* Dark mode */
-  /* ============================= */
+  /* Dark Mode */
   .dark {
     --background: 222 20% 8%;
     --foreground: 210 40% 98%;
@@ -127,14 +225,11 @@ h1 {
   }
 }
 
+/* ============================= */
+/* Tailwind Base Apply */
+/* ============================= */
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    scroll-behavior: smooth;
   }
 }

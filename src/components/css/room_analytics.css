@@ -1,29 +1,29 @@
 .room-analytics {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  width: 100%;
 }
 
-.period-buttons {
-  display: flex;
-  color: #2A9D90;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
+/* Period Buttons */
 .period-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  width: 100%;
 }
 
 .period-btn {
   border: 1px solid #d1d5db;
   background-color: #ffffff;
   color: #374151;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
 .period-btn:hover {
@@ -43,69 +43,116 @@
   color: #ffffff;
 }
 
-
+/* KPI Cards */
 .kpi-cards {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
 }
 
+.kpi-card {
+  width: 100%;
+  min-width: 0;
+}
+
 .kpi-value {
   font-size: 2rem;
   font-weight: 700;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .kpi-subtext {
   font-size: 0.875rem;
   color: #6b7280;
+  line-height: 1.4;
 }
 
+/* Charts */
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
 }
 
-.chart-wrapper {
+.chart-card {
   width: 100%;
-  height: 300px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-@media (min-width: 640px) {
+.chart-wrapper {
+  width: 100%;
+  height: 260px;
+  min-width: 0;
+}
+
+/* Small Phones */
+@media (max-width: 480px) {
+  .room-analytics {
+    gap: 1rem;
+  }
+
+  .period-buttons {
+    gap: 0.4rem;
+  }
+
+  .period-btn {
+    flex: 1 1 calc(50% - 0.4rem);
+    text-align: center;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .kpi-value {
+    font-size: 1.45rem;
+  }
+
+  .kpi-subtext {
+    font-size: 0.75rem;
+  }
+
   .chart-wrapper {
-    height: 300px;
+    height: 220px;
   }
 }
 
-@media (min-width: 768px) {
+/* Tablets */
+@media (min-width: 640px) {
   .kpi-cards {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .chart-wrapper {
+    height: 280px;
+  }
+}
+
+/* Medium Screens */
+@media (min-width: 768px) {
   .charts-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .chart-wrapper {
     height: 300px;
   }
 }
 
+/* Large Screens */
 @media (min-width: 1024px) {
   .kpi-cards {
     grid-template-columns: repeat(4, 1fr);
   }
+
   .chart-wrapper {
-    height: 350px;
+    height: 340px;
   }
 }
 
-@media (max-width: 480px) {
-  .kpi-value {
-    font-size: 1.5rem;
-  }
-  .kpi-subtext {
-    font-size: 0.75rem;
-  }
+/* Extra Large Screens */
+@media (min-width: 1440px) {
   .chart-wrapper {
-    height: 250px;
+    height: 380px;
   }
 }

@@ -10,8 +10,11 @@ from .models import Room, Booking
 from .serializers import RoomSerializer, BookingSerializer
 
 class RoomViewSet(viewsets.ModelViewSet):
-    queryset = Room.objects.all()
     serializer_class = RoomSerializer
+
+    queryset = Room.objects.all()
+    def get_queryset(self):
+        return Room.objects.filter(is_active=True)
 
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()

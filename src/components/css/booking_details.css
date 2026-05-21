@@ -1,0 +1,292 @@
+/* =====================================================
+   BOOKING DETAILS MODAL
+   Primary Color: #2A9D90
+===================================================== */
+
+:root {
+  --primary: #2A9D90;
+  --primary-light: #e7f6f4;
+  --text-dark: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --bg-soft: #f9fafb;
+}
+
+/* ================= BACKDROP ================= */
+
+.reservation-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+/* ================= MODAL ================= */
+
+.reservation-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 1050px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+  animation: modalFade 0.25s ease;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= HEADER ================= */
+
+.reservation-header {
+  background: var(--primary);
+  color: white;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px 16px 0 0;
+}
+
+.reservation-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* ================= TOP SECTION ================= */
+
+.reservation-top {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 22px;
+  padding: 22px;
+  background: var(--bg-soft);
+}
+
+/* ================= ROOM IMAGE ================= */
+
+.room-preview {
+  position: relative;
+}
+
+.room-image {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.room-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: var(--primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ================= SUMMARY GRID ================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  transition: 0.25s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.08);
+}
+
+.summary-title {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.summary-amount {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 6px 0;
+}
+
+.summary-row span:first-child {
+  color: var(--text-muted);
+}
+
+/* PAYMENT COLORS */
+
+.amount-paid {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.amount-due {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ================= BODY ================= */
+
+.reservation-body {
+  padding: 24px;
+}
+
+/* ================= DETAILS CARDS ================= */
+
+.details-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* CARD */
+
+.details-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  transition: 0.25s ease;
+}
+
+.details-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+/* CARD TITLE */
+
+.details-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 14px;
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 8px;
+}
+
+/* ================= ROW ================= */
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed #edf0f2;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row span:first-child {
+  color: var(--text-muted);
+}
+
+.row span:last-child {
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+/* ================= STATUS ================= */
+
+.status-confirmed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ================= NOTES ================= */
+
+.section-title {
+  margin-top: 28px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.notes {
+  background: var(--primary-light);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+  .reservation-top {
+    grid-template-columns: 1fr;
+  }
+
+  .room-image {
+    height: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .reservation-modal {
+    border-radius: 12px;
+  }
+
+  .reservation-header h2 {
+    font-size: 18px;
+  }
+
+  .summary-amount {
+    font-size: 22px;
+  }
+}
